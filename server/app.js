@@ -20,15 +20,17 @@ app.use(express.static(path.join(__dirname, '../public')));
 
 
 // these are the routes for app 
+//////////////////////////////////////////////////////////////////////////////////////////////
 app.get('/', 
 (req, res) => {
   res.render('index');
 });
 
+
+//////////////////////////////////////////////////////////////////////////////////////////////
 app.get('/signup',(req, res) => {
   res.render('signup');
 });
-
 
 app.post('/signup',(req, res) => {
   models.Users.create(req.body)
@@ -41,32 +43,42 @@ app.post('/signup',(req, res) => {
     res.render('signup');
   });
 });
-
+//////////////////////////////////////////////////////////////////////////////////////////////
 app.post('/login', (req, res) => {
-  console.log("iam in");
-  var username = req.body.username;
-  var password = req.body.password;
-  var salt = utils.createHash(password);
-  console.log(salt);
-  models.Users.compare({ username, password, salt })
+  var options = {};
+  options['username'] = req.body.username;
+
+  models.Users.get(options)
   .then( (success) => {
-    res.location('/');
-    res.render('index');
+    var attempted = req.body.password;
+    var password = success.password;
+    var salt = success.salt;
+
+    if ( models.Users.compare(attempted, password, salt) ) {
+      // the user enter the right password when login
+      res.location('/');
+      res.render('index');
+
+    } else {
+      // the user enter the false password when login
+      res.location('/login');
+      res.render('login');
+    }
+ 
   })
   .catch( (error) => {
-    // res.location('/signup');
-    // res.render('signup');
+    res.location('/login');
+    res.render('login');
   });
   
 });
-
-
+//////////////////////////////////////////////////////////////////////////////////////////////
 app.get('/create', 
 (req, res) => {
   res.render('index');
 });
 
-
+//////////////////////////////////////////////////////////////////////////////////////////////
 app.get('/links', 
 (req, res, next) => {
   models.Links.getAll()
