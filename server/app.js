@@ -33,6 +33,7 @@ app.get('/signup',(req, res) => {
 app.post('/signup',(req, res) => {
   models.Users.create(req.body)
   .then( (success) => {
+    res.location('/');
     res.render('index');
   })
   .catch( (error) => {
@@ -41,6 +42,23 @@ app.post('/signup',(req, res) => {
   });
 });
 
+app.post('/login', (req, res) => {
+  console.log("iam in");
+  var username = req.body.username;
+  var password = req.body.password;
+  var salt = utils.createHash(password);
+  console.log(salt);
+  models.Users.compare({ username, password, salt })
+  .then( (success) => {
+    res.location('/');
+    res.render('index');
+  })
+  .catch( (error) => {
+    // res.location('/signup');
+    // res.render('signup');
+  });
+  
+});
 
 
 app.get('/create', 
