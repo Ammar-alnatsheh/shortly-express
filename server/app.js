@@ -10,22 +10,44 @@ const app = express();
 
 app.set('views', `${__dirname}/views`);
 app.set('view engine', 'ejs');
+
+
+// set middleware for app
 app.use(partials());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '../public')));
 
 
-
+// these are the routes for app 
 app.get('/', 
 (req, res) => {
   res.render('index');
 });
 
+app.get('/signup',(req, res) => {
+  res.render('signup');
+});
+
+
+app.post('/signup',(req, res) => {
+  models.Users.create(req.body)
+  .then( (success) => {
+    res.render('index');
+  })
+  .catch( (error) => {
+    res.location('/signup');
+    res.render('signup');
+  });
+});
+
+
+
 app.get('/create', 
 (req, res) => {
   res.render('index');
 });
+
 
 app.get('/links', 
 (req, res, next) => {
